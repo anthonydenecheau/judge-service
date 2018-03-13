@@ -42,8 +42,8 @@ public class JudgeService {
     @Autowired
     ServiceConfig config;
 
-    @HystrixCommand(fallbackMethod = "buildFallbackListJudge",
-            threadPoolKey = "dogByIdentifiantThreadPool",
+    @HystrixCommand(fallbackMethod = "buildFallbackJudgeList",
+            threadPoolKey = "frenchJudgesThreadPool",
             threadPoolProperties =
                     {@HystrixProperty(name = "coreSize",value="30"),
                      @HystrixProperty(name="maxQueueSize", value="10")},
@@ -107,7 +107,7 @@ public class JudgeService {
     	return completeName;
     }
     
-    private ResponseObjectList<JudgeObject> buildFallbackListJudge(){
+    private ResponseObjectList<JudgeObject> buildFallbackJudgeList(){
     	
     	List<JudgeObject> list = new ArrayList<JudgeObject>(); 
     	list.add(new JudgeObject()
@@ -116,7 +116,7 @@ public class JudgeService {
         return new ResponseObjectList<JudgeObject>(list.size(),list);
     }
     
-    private ResponseObjectList<JudgeObject> buildFallbackListJudge(String show){
+    private ResponseObjectList<JudgeObject> buildFallbackJudgeList(String show){
     	
     	List<JudgeObject> list = new ArrayList<JudgeObject>(); 
     	list.add(new JudgeObject()
@@ -138,8 +138,8 @@ public class JudgeService {
 	    }
     }
     
-    @HystrixCommand(fallbackMethod = "buildFallbackListJudge",
-            threadPoolKey = "dogByIdentifiantThreadPool",
+    @HystrixCommand(fallbackMethod = "buildFallbackJudgeList",
+            threadPoolKey = "internationalJudgesThreadPool",
             threadPoolProperties =
                     {@HystrixProperty(name = "coreSize",value="30"),
                      @HystrixProperty(name="maxQueueSize", value="10")},
@@ -185,7 +185,7 @@ public class JudgeService {
     }
 
     @HystrixCommand(fallbackMethod = "buildFallbackJudge",
-            threadPoolKey = "dogByIdentifiantThreadPool",
+            threadPoolKey = "judgeByIdThreadPool",
             threadPoolProperties =
                     {@HystrixProperty(name = "coreSize",value="30"),
                      @HystrixProperty(name="maxQueueSize", value="10")},
@@ -232,8 +232,8 @@ public class JudgeService {
 
     }
     
-    @HystrixCommand(fallbackMethod = "buildFallbackBreedsByJudge",
-            threadPoolKey = "dogByIdentifiantThreadPool",
+    @HystrixCommand(fallbackMethod = "buildFallbackBreedsList",
+            threadPoolKey = "breedsByIdJudgeThreadPool",
             threadPoolProperties =
                     {@HystrixProperty(name = "coreSize",value="30"),
                      @HystrixProperty(name="maxQueueSize", value="10")},
@@ -244,20 +244,29 @@ public class JudgeService {
                      @HystrixProperty(name="metrics.rollingStats.timeInMilliseconds", value="15000"),
                      @HystrixProperty(name="metrics.rollingStats.numBuckets", value="5")}
     )
-    public ResponseObjectList<BreedObject> getBreedsByIdJudge(int id) {
+    public ResponseObjectList<BreedObject> getBreedsByIdJudge(int id, String show) {
 
         Span newSpan = tracer.createSpan("getBreedsByIdJudge");
         logger.debug("In the judgeService.getBreedsByIdJudge() call, trace id: {}", tracer.getCurrentSpan().traceIdString());
         
     	List<BreedObject> results = new ArrayList<BreedObject>();
-
+    	boolean isInternational = false;
+    	
     	try {
         
+    		if ("ESIN".equals(show))
+    			isInternational = true;
+    		
     		List<JudgeBreed> list = new ArrayList<JudgeBreed>(); 
         	list = breedRepository.findById(id);
 
         	for (JudgeBreed _breed : list) {
 
+        		// Un juge est habilité à juger une race s/ un show international
+        		// si il a obtenu la qualification
+        		if (isInternational && (_breed.getDateQualifie()==null || "".equals(_breed.getDateQualifie())))
+        			continue;
+        		
 		    	// Construction de la réponse
 	    		results.add( new BreedObject()
 	    				.withIdRace( _breed.getIdRace() )
@@ -274,7 +283,7 @@ public class JudgeService {
     }
 
 
-    private ResponseObjectList<BreedObject> buildFallbackBreedsByJudge(int id){
+    private ResponseObjectList<BreedObject> buildFallbackBreedsByJudge(int id, String show){
     	
     	List<BreedObject> list = new ArrayList<BreedObject>(); 
     	list.add(new BreedObject()

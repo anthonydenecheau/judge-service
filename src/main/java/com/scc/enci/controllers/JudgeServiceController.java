@@ -34,7 +34,8 @@ public class JudgeServiceController {
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
     @RequestMapping(value="/getFrenchJudges/{show}",method = RequestMethod.GET)
-    public ResponseObjectList<JudgeObject> getFrenchJudges( @PathVariable("show") String show) {
+    public ResponseObjectList<JudgeObject> getFrenchJudges( 
+    		@ApiParam(value = "Show type code", required = true) @PathVariable("show") String show) {
         return judgeService.getFrenchJudges(show);
     }    
 
@@ -95,9 +96,10 @@ public class JudgeServiceController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
-    @RequestMapping(value="/getEnabledBreeds/{id}",method = RequestMethod.GET)
+    @RequestMapping(value="/getEnabledBreeds/{id}/{show}",method = RequestMethod.GET)
     public ResponseObjectList<BreedObject> getEnabledBreeds( 
-    		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id) {
-        return judgeService.getBreedsByIdJudge(id);
+    		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id
+    		, @ApiParam(value = "Show type code", required = true) @PathVariable("show") String show) {
+        return judgeService.getBreedsByIdJudge(id, show);
     }
 }
