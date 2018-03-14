@@ -1,4 +1,4 @@
-package com.scc.enci.utils;
+package com.scc.judge.utils;
 
 import org.springframework.stereotype.Component;
 

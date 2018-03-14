@@ -1,4 +1,4 @@
-package com.scc.enci.model;
+package com.scc.judge.model;
 
 import java.sql.Timestamp;
 

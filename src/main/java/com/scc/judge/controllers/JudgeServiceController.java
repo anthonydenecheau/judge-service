@@ -1,13 +1,13 @@
-package com.scc.enci.controllers;
+package com.scc.judge.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.scc.enci.services.JudgeService;
-import com.scc.enci.template.BreedObject;
-import com.scc.enci.template.JudgeObject;
-import com.scc.enci.template.ResponseObjectList;
+import com.scc.judge.services.JudgeService;
+import com.scc.judge.template.BreedObject;
+import com.scc.judge.template.JudgeObject;
+import com.scc.judge.template.ResponseObjectList;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,9 +33,9 @@ public class JudgeServiceController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
-    @RequestMapping(value="/getFrenchJudges/{show}",method = RequestMethod.GET)
+    @RequestMapping(value="/french/show/{show}",method = RequestMethod.GET)
     public ResponseObjectList<JudgeObject> getFrenchJudges( 
-    		@ApiParam(value = "Show type code", required = true) @PathVariable("show") String show) {
+    		@ApiParam(value = "Show type code", required = false) @PathVariable("show") String show) {
         return judgeService.getFrenchJudges(show);
     }    
 
@@ -46,7 +46,7 @@ public class JudgeServiceController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
-    @RequestMapping(value="/getFrenchJudgesCount",method = RequestMethod.GET)
+    @RequestMapping(value="/french/count",method = RequestMethod.GET)
     public int getFrenchJudgesCount() {
     	return judgeService.getFrenchJudgesCount();
     }
@@ -58,7 +58,7 @@ public class JudgeServiceController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
-    @RequestMapping(value="/getInternationalJudges",method = RequestMethod.GET)
+    @RequestMapping(value="/international",method = RequestMethod.GET)
     public ResponseObjectList<JudgeObject> getInternationalJudges() {
         return judgeService.getInternationalJudges();
     }    
@@ -70,7 +70,7 @@ public class JudgeServiceController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
-    @RequestMapping(value="/getSingleFrenchJudge/{id}",method = RequestMethod.GET)
+    @RequestMapping(value="/french/{id}",method = RequestMethod.GET)
     public JudgeObject getFrenchJudgeById( 
     		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id) {
     	return judgeService.getJudgeById(id);
@@ -83,7 +83,7 @@ public class JudgeServiceController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
-    @RequestMapping(value="/getSingleInternationalJudges/{id}",method = RequestMethod.GET)
+    @RequestMapping(value="/international/{id}",method = RequestMethod.GET)
     public JudgeObject getInternationalJudgeById( 
     		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id) {
     	return judgeService.getJudgeById(id);
@@ -96,10 +96,10 @@ public class JudgeServiceController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
-    @RequestMapping(value="/getEnabledBreeds/{id}/{show}",method = RequestMethod.GET)
+    @RequestMapping(value="/{id}/breeds/{show}",method = RequestMethod.GET)
     public ResponseObjectList<BreedObject> getEnabledBreeds( 
     		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id
-    		, @ApiParam(value = "Show type code", required = true) @PathVariable("show") String show) {
+    		, @ApiParam(value = "Show type code", required = false) @PathVariable("show") String show) {
         return judgeService.getBreedsByIdJudge(id, show);
     }
 }

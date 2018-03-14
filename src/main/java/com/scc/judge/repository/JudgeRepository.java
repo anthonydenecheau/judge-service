@@ -1,11 +1,11 @@
-package com.scc.enci.repository;
+package com.scc.judge.repository;
 
 import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.scc.enci.model.Judge;
+import com.scc.judge.model.Judge;
 
 @Repository
 public interface JudgeRepository extends CrudRepository<Judge, String> {

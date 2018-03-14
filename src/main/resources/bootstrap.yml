@@ -1,6 +1,6 @@
 spring:
   application:
-    name: encijudgeservice
+    name: judgeservice
   profiles:
     active:
       default

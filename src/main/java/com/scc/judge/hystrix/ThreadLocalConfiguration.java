@@ -1,4 +1,4 @@
-package com.scc.enci.hystrix;
+package com.scc.judge.hystrix;
 
 import com.netflix.hystrix.strategy.HystrixPlugins;
 import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;

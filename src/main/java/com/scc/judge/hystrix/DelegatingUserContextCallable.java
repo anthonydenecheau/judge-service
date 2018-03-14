@@ -1,9 +1,9 @@
-package com.scc.enci.hystrix;
+package com.scc.judge.hystrix;
 
 import java.util.concurrent.Callable;
 
-import com.scc.enci.utils.UserContext;
-import com.scc.enci.utils.UserContextHolder;
+import com.scc.judge.utils.UserContext;
+import com.scc.judge.utils.UserContextHolder;
 
 
 public final class DelegatingUserContextCallable<V> implements Callable<V> {

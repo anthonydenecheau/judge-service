@@ -1,4 +1,4 @@
-package com.scc.enci.template;
+package com.scc.judge.template;
 
 import io.swagger.annotations.ApiModelProperty;
 

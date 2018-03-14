@@ -1,11 +1,11 @@
-package com.scc.enci.hystrix;
+package com.scc.judge.hystrix;
 
 import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariable;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariableLifecycle;
 import com.netflix.hystrix.strategy.properties.HystrixProperty;
-import com.scc.enci.utils.UserContextHolder;
+import com.scc.judge.utils.UserContextHolder;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;

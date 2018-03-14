@@ -1,4 +1,4 @@
-package com.scc.enci;
+package com.scc.judge;
 
 import javax.servlet.Filter;
 
@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 import com.google.common.base.Predicates;
-import com.scc.enci.utils.UserContextFilter;
+import com.scc.judge.utils.UserContextFilter;
 
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;

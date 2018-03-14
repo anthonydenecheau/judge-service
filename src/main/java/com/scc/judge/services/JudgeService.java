@@ -1,4 +1,4 @@
-package com.scc.enci.services;
+package com.scc.judge.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.sleuth.Span;
@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
-import com.scc.enci.config.ServiceConfig;
-import com.scc.enci.model.Judge;
-import com.scc.enci.model.JudgeBreed;
-import com.scc.enci.repository.BreedRepository;
-import com.scc.enci.repository.JudgeRepository;
-import com.scc.enci.template.BreedObject;
-import com.scc.enci.template.JudgeObject;
-import com.scc.enci.template.ResponseObjectList;
+import com.scc.judge.config.ServiceConfig;
+import com.scc.judge.model.Judge;
+import com.scc.judge.model.JudgeBreed;
+import com.scc.judge.repository.BreedRepository;
+import com.scc.judge.repository.JudgeRepository;
+import com.scc.judge.template.BreedObject;
+import com.scc.judge.template.JudgeObject;
+import com.scc.judge.template.ResponseObjectList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
