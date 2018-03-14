@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.scc.judge.config.AuthenticateConfig;
-import com.scc.judge.config.ServiceConfig;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -21,14 +20,10 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 @Component
 public class UserContextFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(UserContextFilter.class);
-
-//    @Autowired
-//    ServiceConfig config;
 
     @Autowired
     AuthenticateConfig authenticate;
@@ -72,9 +67,6 @@ public class UserContextFilter implements Filter {
 			return false;
 
 		// la clé transmise est-elle reconnue ?
-//		if (!config.getAuthKey().equals(authCredentials))
-//			return false;
-		
 		for (String _key : authenticate.getKeys())
 			if (!_key.equals(authCredentials))
 				return false;
@@ -85,7 +77,6 @@ public class UserContextFilter implements Filter {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
 		// la clé est-elle toujours active ?
-//		String dateLimiteString = config.getAuthValue();
 		String dateLimiteString = authenticate.getValue();
 		if (dateLimiteString != null) {
 			Date dateLimite = null;

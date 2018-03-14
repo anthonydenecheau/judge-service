@@ -46,7 +46,7 @@ public class Application extends WebMvcConfigurationSupport {
         		.apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors
-                        .basePackage("com.scc.enci.controllers"))
+                        .basePackage("com.scc.judge.controllers"))
                 .apis(Predicates.not(RequestHandlerSelectors.basePackage("org.springframework.boot")))
                 .paths(PathSelectors.any())
                 .build();

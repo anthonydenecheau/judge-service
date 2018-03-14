@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix="authentification")
 public class AuthenticateConfig {
 
-	@Value("${value}")
+	@Value("${authentification.value}")
 	private String value;
 	
 	private List<String> keys = new ArrayList<String>();
