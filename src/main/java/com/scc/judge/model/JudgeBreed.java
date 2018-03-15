@@ -9,7 +9,7 @@ import javax.persistence.IdClass;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "enci_juge_habilitation_expos")
+@Table(name = "ws_juge_habilitation_expos")
 @IdClass(JudgeBreedId.class)
 public class JudgeBreed{
 
