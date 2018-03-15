@@ -63,8 +63,8 @@ public class Application extends WebMvcConfigurationSupport {
     
     private ApiInfo apiInfo() {
     	
-    	String detailDescription = "The Enci Microservice is a RESTful API that provides information for Enci Show . \n \n" 
-	    		+"Below is a list of available REST API calls for enci site resources.";
+    	String detailDescription = "The Judge Microservice is a RESTful API that provides information about Judge. \n \n" 
+	    		+"Below is a list of available REST API calls for judge resources.";
 
         return new ApiInfoBuilder()
         	.title("Overview")

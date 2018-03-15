@@ -33,12 +33,25 @@ public class JudgeServiceController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
-    @RequestMapping(value="/french/show/{show}",method = RequestMethod.GET)
-    public ResponseObjectList<JudgeObject> getFrenchJudges( 
+    @RequestMapping(value= "/french/show/{show}" ,method = RequestMethod.GET)
+    public ResponseObjectList<JudgeObject> getFrenchJudgesByKindOfShow( 
     		@ApiParam(value = "Show type code", required = false) @PathVariable("show") String show) {
-        return judgeService.getFrenchJudges(show);
+    	return judgeService.getFrenchJudges(show);
     }    
 
+    @ApiOperation(value = "View French judges information",response = ResponseObjectList.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully retrieved french judges"),
+            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+            @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+            @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
+    })    
+    @RequestMapping(value="/french",method = RequestMethod.GET)
+    public ResponseObjectList<JudgeObject> getFrenchJudges() {
+        return judgeService.getFrenchJudges("");
+    }  
+    
+    /*
     @ApiOperation(value = "Count French judges",response = int.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved french judges"),
@@ -50,7 +63,8 @@ public class JudgeServiceController {
     public int getFrenchJudgesCount() {
     	return judgeService.getFrenchJudgesCount();
     }
-
+    */
+    
     @ApiOperation(value = "View International judges information",response = ResponseObjectList.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved international judges"),

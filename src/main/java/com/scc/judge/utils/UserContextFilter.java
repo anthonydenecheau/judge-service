@@ -63,15 +63,22 @@ public class UserContextFilter implements Filter {
     public void destroy() {}
     
     private boolean authenticate(String authCredentials) {
+		Boolean ok = false;
+
 		if (null == authCredentials)
-			return false;
+			return ok;
 
 		// la clé transmise est-elle reconnue ?
-		for (String _key : authenticate.getKeys())
-			if (!_key.equals(authCredentials))
-				return false;
+		for (String _key : authenticate.getKeys()) {
+			if (_key.equals(authCredentials))
+				ok = true;
+		}
+
+		if(!ok) {
+			return false;
+		}
 		
-		Boolean ok = false;
+		ok = false;
 
 		Date today = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");

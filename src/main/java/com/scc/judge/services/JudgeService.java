@@ -283,7 +283,7 @@ public class JudgeService {
     }
 
 
-    private ResponseObjectList<BreedObject> buildFallbackBreedsByJudge(int id, String show){
+    private ResponseObjectList<BreedObject> buildFallbackBreedsList(int id, String show){
     	
     	List<BreedObject> list = new ArrayList<BreedObject>(); 
     	list.add(new BreedObject()
