@@ -35,7 +35,7 @@ public class JudgeServiceController {
     })    
     @RequestMapping(value= "/french/show/{show}" ,method = RequestMethod.GET)
     public ResponseObjectList<JudgeObject> getFrenchJudgesByKindOfShow( 
-    		@ApiParam(value = "Show type code", required = false) @PathVariable("show") String show) {
+    		@ApiParam(value = "Show type code", required = true) @PathVariable("show") String show) {
     	return judgeService.getFrenchJudges(show);
     }    
 
@@ -51,21 +51,7 @@ public class JudgeServiceController {
         return judgeService.getFrenchJudges("");
     }  
     
-    /*
-    @ApiOperation(value = "Count French judges",response = int.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully retrieved french judges"),
-            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
-            @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-            @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
-    })    
-    @RequestMapping(value="/french/count",method = RequestMethod.GET)
-    public int getFrenchJudgesCount() {
-    	return judgeService.getFrenchJudgesCount();
-    }
-    */
-    
-    @ApiOperation(value = "View International judges information",response = ResponseObjectList.class)
+    @ApiOperation(value = "View International judges (all but french) information",response = ResponseObjectList.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved international judges"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
@@ -90,7 +76,7 @@ public class JudgeServiceController {
     	return judgeService.getJudgeById(id);
     }
 
-    @ApiOperation(value = "View International judge information by id",response = JudgeObject.class)
+    @ApiOperation(value = "View International judge (all but french) information by id",response = JudgeObject.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved international judge"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
@@ -113,7 +99,7 @@ public class JudgeServiceController {
     @RequestMapping(value="/{id}/breeds/{show}",method = RequestMethod.GET)
     public ResponseObjectList<BreedObject> getEnabledBreeds( 
     		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id
-    		, @ApiParam(value = "Show type code", required = false) @PathVariable("show") String show) {
+    		, @ApiParam(value = "Show type code", required = true) @PathVariable("show") String show) {
         return judgeService.getBreedsByIdJudge(id, show);
     }
 }

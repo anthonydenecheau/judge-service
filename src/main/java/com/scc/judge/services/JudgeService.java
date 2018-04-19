@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
@@ -18,9 +17,8 @@ import com.scc.judge.template.JudgeObject;
 import com.scc.judge.template.ResponseObjectList;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,24 +65,21 @@ public class JudgeService {
         		list = judgeRepository.findByCountryOrderByLastNameAscFirstNameAsc("FR");
         		
         	List<JudgeObject> results = new ArrayList<JudgeObject>();
-	    	
-	    	for (Judge _judge : list) {
-	    		
-	    		JudgeObject result = new JudgeObject();
-
-		    	// Construction de la réponse
-	    		result.withId(_judge.getId() )
+	    	results = list.stream()
+    		.map(_judge -> new JudgeObject()
+    				.withId(_judge.getId() )
 	    			.withName( buildName(_judge.getLastName(),_judge.getFirstName()) )
 	    			.withAddress( _judge.getAddress())
 	    			.withCity( _judge.getCity() )
 	    			.withZipCode( _judge.getZipCode() )
 	    			.withEmail( _judge.getEmail() )
 	    			.withCountry( _judge.getCountry() )
-	    		;
-	    		
-	    		results.add(result);
-	    	}
+    		)
+    		.collect(Collectors.toList())
+    		;
+	    	
 	    	return new ResponseObjectList<JudgeObject>(results.size(),results);
+	    	
         }
 	    finally{
 	    	newSpan.tag("peer.service", "postgres");
@@ -92,7 +87,7 @@ public class JudgeService {
 	        tracer.close(newSpan);
 	    }
     }
-
+    
     private String buildName(String lastName, String firstName) {
     	
     	String completeName = "";
@@ -107,7 +102,8 @@ public class JudgeService {
     	return completeName;
     }
     
-    private ResponseObjectList<JudgeObject> buildFallbackJudgeList(){
+    @SuppressWarnings("unused")
+	private ResponseObjectList<JudgeObject> buildFallbackJudgeList(){
     	
     	List<JudgeObject> list = new ArrayList<JudgeObject>(); 
     	list.add(new JudgeObject()
@@ -116,7 +112,8 @@ public class JudgeService {
         return new ResponseObjectList<JudgeObject>(list.size(),list);
     }
     
-    private ResponseObjectList<JudgeObject> buildFallbackJudgeList(String show){
+    @SuppressWarnings("unused")
+	private ResponseObjectList<JudgeObject> buildFallbackJudgeList(String show){
     	
     	List<JudgeObject> list = new ArrayList<JudgeObject>(); 
     	list.add(new JudgeObject()
@@ -154,28 +151,27 @@ public class JudgeService {
         Span newSpan = tracer.createSpan("getInternationalJudges");
         logger.debug("In the judgeService.getInternationalJudges() call, trace id: {}", tracer.getCurrentSpan().traceIdString());
         try {
+
         	List<Judge> list = new ArrayList<Judge>(); 
-        	list = judgeRepository.findByIsInternationalOrderByLastNameAscFirstNameAsc("O");
+        	list = judgeRepository.findByIsInternationalAndCountryNotOrderByLastNameAscFirstNameAsc("O","FR");
 	    	
         	List<JudgeObject> results = new ArrayList<JudgeObject>();
-	    	
-	    	for (Judge _judge : list) {
-	    		
-		    	JudgeObject result = new JudgeObject();
 
-		    	// Construction de la réponse
-	    		result.withId(_judge.getId() )
+	    	results = list.stream()
+    		.map(_judge -> new JudgeObject()
+    				.withId(_judge.getId() )
 	    			.withName( buildName(_judge.getLastName(),_judge.getFirstName()) )
 	    			.withAddress( _judge.getAddress())
-	    			.withZipCode( _judge.getZipCode() )
 	    			.withCity( _judge.getCity() )
+	    			.withZipCode( _judge.getZipCode() )
 	    			.withEmail( _judge.getEmail() )
 	    			.withCountry( _judge.getCountry() )
-	    		;
-	    		
-	    		results.add(result);
-	    	}
+    		)
+    		.collect(Collectors.toList())
+    		;
+
 	    	return new ResponseObjectList<JudgeObject>(results.size(),results);
+
         }
 	    finally{
 	    	newSpan.tag("peer.service", "postgres");
@@ -226,7 +222,8 @@ public class JudgeService {
         return result;
     }
 
-    private JudgeObject buildFallbackJudge(int id){
+    @SuppressWarnings("unused")
+	private JudgeObject buildFallbackJudge(int id){
     	
     	return new JudgeObject().withId(0);
 
@@ -264,7 +261,7 @@ public class JudgeService {
 
         		// Un juge est habilité à juger une race s/ un show international
         		// si il a obtenu la qualification
-        		if (isInternational && (_breed.getDateQualifie()==null || "".equals(_breed.getDateQualifie())))
+        		if (isInternational && (_breed.getDateQualifie()==null))
         			continue;
         		
 		    	// Construction de la réponse
@@ -283,7 +280,8 @@ public class JudgeService {
     }
 
 
-    private ResponseObjectList<BreedObject> buildFallbackBreedsList(int id, String show){
+    @SuppressWarnings("unused")
+	private ResponseObjectList<BreedObject> buildFallbackBreedsList(int id, String show){
     	
     	List<BreedObject> list = new ArrayList<BreedObject>(); 
     	list.add(new BreedObject()

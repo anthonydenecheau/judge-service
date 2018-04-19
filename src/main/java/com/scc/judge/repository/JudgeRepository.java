@@ -13,7 +13,7 @@ public interface JudgeRepository extends CrudRepository<Judge, String> {
     public Judge findById(int id);
     
     public List<Judge> findByCountryAndIsInternationalOrderByLastNameAscFirstNameAsc(String country, String isInternational);
-    public List<Judge> findByIsInternationalOrderByLastNameAscFirstNameAsc(String isInternational);
+    public List<Judge> findByIsInternationalAndCountryNotOrderByLastNameAscFirstNameAsc(String isInternational, String county);
     public List<Judge> findByCountryOrderByLastNameAscFirstNameAsc(String country);
     
 }

@@ -34,7 +34,7 @@ public class JudgeBreed{
 	public void setIdRace(int idRace) { this.idRace = idRace; }
 	
 	public Timestamp getDateQualifie() { return dateQualifie; }
-	public void setDateQualifie(Timestamp isInternational) { this.dateQualifie = dateQualifie; }
+	public void setDateQualifie(Timestamp dateQualifie) { this.dateQualifie = dateQualifie; }
 
 	public Timestamp getTimestamp() { return timestamp; }
 	public void setTimestamp(Timestamp timestamp) { this.timestamp = timestamp; }
