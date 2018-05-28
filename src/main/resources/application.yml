@@ -22,8 +22,9 @@ springfox:
         path: /api-docs
                 
 #Setting the logging levels for the service
-logging:
-  level:
-    com.netflix: WARN
-    org.springframework.web: WARN
-    com.scc: DEBUG      
+#Migrate to logstach and Cloud Config
+#logging:
+#  level:
+#    com.netflix: WARN
+#    org.springframework.web: WARN
+#    com.scc: DEBUG      

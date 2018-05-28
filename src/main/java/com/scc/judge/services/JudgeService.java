@@ -65,18 +65,7 @@ public class JudgeService {
         		list = judgeRepository.findByCountryOrderByLastNameAscFirstNameAsc("FR");
         		
         	List<JudgeObject> results = new ArrayList<JudgeObject>();
-	    	results = list.stream()
-    		.map(_judge -> new JudgeObject()
-    				.withId(_judge.getId() )
-	    			.withName( buildName(_judge.getLastName(),_judge.getFirstName()) )
-	    			.withAddress( _judge.getAddress())
-	    			.withCity( _judge.getCity() )
-	    			.withZipCode( _judge.getZipCode() )
-	    			.withEmail( _judge.getEmail() )
-	    			.withCountry( _judge.getCountry() )
-    		)
-    		.collect(Collectors.toList())
-    		;
+	    	results = buildResponseObjectJudge(list);
 	    	
 	    	return new ResponseObjectList<JudgeObject>(results.size(),results);
 	    	
@@ -87,6 +76,22 @@ public class JudgeService {
 	        tracer.close(newSpan);
 	    }
     }
+
+	private List<JudgeObject> buildResponseObjectJudge(List<Judge> list) {
+		return list.stream()
+			.map(_judge -> new JudgeObject()
+					.withId(_judge.getId() )
+					.withCivility(_judge.getCivility())
+					.withName( buildName(_judge.getLastName(),_judge.getFirstName()) )
+					.withAddress( _judge.getAddress())
+					.withCity( _judge.getCity() )
+					.withZipCode( _judge.getZipCode() )
+					.withEmail( _judge.getEmail() )
+					.withCountry( _judge.getCountry() )
+			)
+			.collect(Collectors.toList())
+		;
+	}
     
     private String buildName(String lastName, String firstName) {
     	
@@ -156,19 +161,7 @@ public class JudgeService {
         	list = judgeRepository.findByIsInternationalAndCountryNotOrderByLastNameAscFirstNameAsc("O","FR");
 	    	
         	List<JudgeObject> results = new ArrayList<JudgeObject>();
-
-	    	results = list.stream()
-    		.map(_judge -> new JudgeObject()
-    				.withId(_judge.getId() )
-	    			.withName( buildName(_judge.getLastName(),_judge.getFirstName()) )
-	    			.withAddress( _judge.getAddress())
-	    			.withCity( _judge.getCity() )
-	    			.withZipCode( _judge.getZipCode() )
-	    			.withEmail( _judge.getEmail() )
-	    			.withCountry( _judge.getCountry() )
-    		)
-    		.collect(Collectors.toList())
-    		;
+	    	results = buildResponseObjectJudge(list);
 
 	    	return new ResponseObjectList<JudgeObject>(results.size(),results);
 
@@ -204,6 +197,7 @@ public class JudgeService {
 
 	    	// Construction de la réponse
     		result.withId(_judge.getId() )
+    			.withCivility(_judge.getCivility())
     			.withName( buildName(_judge.getLastName(),_judge.getFirstName()) )
     			.withAddress( _judge.getAddress())
     			.withZipCode( _judge.getZipCode() )

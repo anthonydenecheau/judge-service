@@ -18,6 +18,9 @@ public class Judge{
 	@Column(name = "num")
 	private String number;
 
+	@Column(name = "civilite")
+	private String civility;
+
 	@Column(name = "nom")
 	private String lastName;
 
@@ -51,6 +54,9 @@ public class Judge{
 	public String getNumber() { return number; }
 	public void setNumber(String number) { this.number = number; }
 	
+	public String getCivility() { return civility; }
+	public void setCivility(String civility) { this.civility = civility; }
+	
 	public String getLastName() { return lastName; }
 	public void setLastName(String lastName) { this.lastName = lastName; }
 	
@@ -80,6 +86,7 @@ public class Judge{
 
 	public Judge withId(int id){ this.setId( id ); return this; }
 	public Judge withNumber(String number){ this.setNumber(number); return this; }
+	public Judge withCivility(String civility){ this.setCivility(civility); return this; }
 	public Judge withLastName(String lastName){ this.setLastName(lastName); return this; }
 	public Judge withFirstName(String firstName){ this.setFirstName(firstName); return this; }
 	public Judge withAddress(String address){ this.setAddress(address); return this; }
@@ -89,5 +96,6 @@ public class Judge{
 	public Judge withEmail(String email){ this.setEmail(email); return this; }
 	public Judge withIsInternational(String isInternational){ this.setIsInternational( isInternational ); return this; }
 	public Judge withTimestamp(Timestamp timestamp){ this.setTimestamp(timestamp); return this; }
+
 
 }

@@ -7,26 +7,32 @@ public class JudgeObject {
 	@ApiModelProperty(notes = "Judge id", position = 1, allowEmptyValue=true)
 	private int id;
 	
-	@ApiModelProperty(notes = "Judge name", position = 2, allowEmptyValue=true)
+	@ApiModelProperty(notes = "Judge civility", position = 2, allowEmptyValue=true)
+	private String civility;
+	
+	@ApiModelProperty(notes = "Judge name", position = 3, allowEmptyValue=true)
 	private String name;
 
-	@ApiModelProperty(notes = "Judge Address", position = 3, allowEmptyValue=true)
+	@ApiModelProperty(notes = "Judge Address", position = 4, allowEmptyValue=true)
 	private String address;
 	
-	@ApiModelProperty(notes = "Judge ZipCode", position = 4, allowEmptyValue=true)
+	@ApiModelProperty(notes = "Judge zipCode", position = 5, allowEmptyValue=true)
 	private String zipCode;
 
-	@ApiModelProperty(notes = "Judge City", position = 5, allowEmptyValue=true)
+	@ApiModelProperty(notes = "Judge city", position = 6, allowEmptyValue=true)
 	private String city;
 	
-	@ApiModelProperty(notes = "Judge email contact", position = 6, allowEmptyValue=true)
+	@ApiModelProperty(notes = "Judge email contact", position = 7, allowEmptyValue=true)
 	private String email;
 	
-	@ApiModelProperty(notes = "Judge Country", position = 7, allowEmptyValue=true)
+	@ApiModelProperty(notes = "Judge country", position = 8, allowEmptyValue=true)
 	private String country;
 
 	public int getId() { return id; }
 	public void setId(int id) { this.id = id; }
+
+	public String getCivility() { return civility; }
+	public void setCivility(String civility) { this.civility = civility; }
 
 	public String getName() { return name; }
 	public void setName(String name) { this.name = name; }
@@ -47,6 +53,7 @@ public class JudgeObject {
 	public void setEmail(String email) { this.email = email; }
 	
 	public JudgeObject withId(int id){ this.setId( id ); return this; }
+	public JudgeObject withCivility(String civility){ this.setCivility(civility); return this; }
 	public JudgeObject withName(String name){ this.setName(name); return this; }
 	public JudgeObject withAddress(String address){ this.setAddress(address); return this; }
 	public JudgeObject withZipCode(String zipCode){ this.setZipCode(zipCode); return this; }
