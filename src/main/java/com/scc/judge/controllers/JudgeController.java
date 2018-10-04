@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.scc.judge.exceptions.EntityNotFoundException;
 import com.scc.judge.services.JudgeService;
 import com.scc.judge.template.BreedObject;
 import com.scc.judge.template.JudgeObject;
 import com.scc.judge.template.ResponseObjectList;
+import com.scc.judge.utils.ShowEnum;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RestController
 @RequestMapping(value="v1/judges")
 @Api(value="judge selection", description="Return judge data")
-public class JudgeServiceController {
+public class JudgeController {
    
 	@Autowired
     private JudgeService judgeService;
@@ -29,13 +31,14 @@ public class JudgeServiceController {
     @ApiOperation(value = "View French judges information by kind of show",response = ResponseObjectList.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved french judges"),
+            @ApiResponse(code = 400, message = "You are trying to reach the resource with invalid parameters"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
     @RequestMapping(value= "/french/show/{show}" ,method = RequestMethod.GET)
     public ResponseObjectList<JudgeObject> getFrenchJudgesByKindOfShow( 
-    		@ApiParam(value = "Show type code", required = true) @PathVariable("show") String show) {
+    		@ApiParam(value = "Show type code", required = true) @PathVariable("show") ShowEnum show) {
     	return judgeService.getFrenchJudges(show);
     }    
 
@@ -48,7 +51,7 @@ public class JudgeServiceController {
     })    
     @RequestMapping(value="/french",method = RequestMethod.GET)
     public ResponseObjectList<JudgeObject> getFrenchJudges() {
-        return judgeService.getFrenchJudges("");
+        return judgeService.getFrenchJudges(ShowEnum.ALL);
     }  
     
     @ApiOperation(value = "View International judges (all but french) information",response = ResponseObjectList.class)
@@ -66,32 +69,35 @@ public class JudgeServiceController {
     @ApiOperation(value = "View French judge information by id",response = JudgeObject.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved french judge"),
+            @ApiResponse(code = 400, message = "You are trying to reach the resource with invalid parameters"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
     @RequestMapping(value="/french/{id}",method = RequestMethod.GET)
     public JudgeObject getFrenchJudgeById( 
-    		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id) {
+    		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id) throws EntityNotFoundException {
     	return judgeService.getJudgeById(id);
     }
 
     @ApiOperation(value = "View International judge (all but french) information by id",response = JudgeObject.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved international judge"),
+            @ApiResponse(code = 400, message = "You are trying to reach the resource with invalid parameters"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
     @RequestMapping(value="/international/{id}",method = RequestMethod.GET)
     public JudgeObject getInternationalJudgeById( 
-    		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id) {
+    		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id) throws EntityNotFoundException {
     	return judgeService.getJudgeById(id);
     }
 
     @ApiOperation(value = "View breeds that the judge is enabled to",response = ResponseObjectList.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved breeds"),
+            @ApiResponse(code = 400, message = "You are trying to reach the resource with invalid parameters"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
@@ -99,7 +105,7 @@ public class JudgeServiceController {
     @RequestMapping(value="/{id}/breeds/{show}",method = RequestMethod.GET)
     public ResponseObjectList<BreedObject> getEnabledBreeds( 
     		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id
-    		, @ApiParam(value = "Show type code", required = true) @PathVariable("show") String show) {
+    		, @ApiParam(value = "Show type code", required = true) @PathVariable("show") ShowEnum show) {
         return judgeService.getBreedsByIdJudge(id, show);
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.scc.judge.config.ServiceConfig;
+import com.scc.judge.exceptions.EntityNotFoundException;
 import com.scc.judge.model.Judge;
 import com.scc.judge.model.JudgeBreed;
 import com.scc.judge.repository.BreedRepository;
@@ -15,9 +16,11 @@ import com.scc.judge.repository.JudgeRepository;
 import com.scc.judge.template.BreedObject;
 import com.scc.judge.template.JudgeObject;
 import com.scc.judge.template.ResponseObjectList;
+import com.scc.judge.utils.ShowEnum;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -52,14 +55,14 @@ public class JudgeService {
                      @HystrixProperty(name="metrics.rollingStats.timeInMilliseconds", value="15000"),
                      @HystrixProperty(name="metrics.rollingStats.numBuckets", value="5")}
     )
-    public ResponseObjectList<JudgeObject> getFrenchJudges(String show){
+    public ResponseObjectList<JudgeObject> getFrenchJudges(ShowEnum show){
 
         Span newSpan = tracer.createSpan("getFrenchJudges");
         logger.debug("In the judgeService.getFrenchJudges() call, trace id: {}", tracer.getCurrentSpan().traceIdString());
         try {
         	
         	List<Judge> list = new ArrayList<Judge>(); 
-        	if ("ESIN".equals(show))
+        	if (show.equals(ShowEnum.ESIN))
         		list = judgeRepository.findByCountryAndIsInternationalOrderByLastNameAscFirstNameAsc("FR","O");
         	else
         		list = judgeRepository.findByCountryOrderByLastNameAscFirstNameAsc("FR");
@@ -118,26 +121,13 @@ public class JudgeService {
     }
     
     @SuppressWarnings("unused")
-	private ResponseObjectList<JudgeObject> buildFallbackJudgeList(String show){
+	private ResponseObjectList<JudgeObject> buildFallbackJudgeList(ShowEnum show){
     	
     	List<JudgeObject> list = new ArrayList<JudgeObject>(); 
     	list.add(new JudgeObject()
                 .withId(0))
     	;
         return new ResponseObjectList<JudgeObject>(list.size(),list);
-    }
-    
-    public int getFrenchJudgesCount() {
-        Span newSpan = tracer.createSpan("getFrenchJudgesCount");
-        logger.debug("In the judgeService.getFrenchJudgesCount() call, trace id: {}", tracer.getCurrentSpan().traceIdString());
-        try {
-        	return judgeRepository.findByCountryOrderByLastNameAscFirstNameAsc("FR").size();
-        }
-	    finally{
-	    	newSpan.tag("peer.service", "postgres");
-	        newSpan.logEvent(org.springframework.cloud.sleuth.Span.CLIENT_RECV);
-	        tracer.close(newSpan);
-	    }
     }
     
     @HystrixCommand(fallbackMethod = "buildFallbackJudgeList",
@@ -183,9 +173,10 @@ public class JudgeService {
                      @HystrixProperty(name="circuitBreaker.errorThresholdPercentage", value="75"),
                      @HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds", value="7000"),
                      @HystrixProperty(name="metrics.rollingStats.timeInMilliseconds", value="15000"),
-                     @HystrixProperty(name="metrics.rollingStats.numBuckets", value="5")}
+                     @HystrixProperty(name="metrics.rollingStats.numBuckets", value="5")},
+            ignoreExceptions= { EntityNotFoundException.class}
     )
-    public JudgeObject getJudgeById(int id) {
+    public JudgeObject getJudgeById(int id) throws EntityNotFoundException {
         Span newSpan = tracer.createSpan("getJudgeById");
         logger.debug("In the judgeService.getJudgeById() call, trace id: {}", tracer.getCurrentSpan().traceIdString());
 
@@ -193,17 +184,20 @@ public class JudgeService {
 
         try {
         	
-        	Judge _judge = judgeRepository.findById(id);
+        	Optional<Judge> _judge = judgeRepository.findById(id);
 
+        	if (!_judge.isPresent())
+    			throw new EntityNotFoundException(JudgeObject.class, "id", String.valueOf(id));
+        	
 	    	// Construction de la réponse
-    		result.withId(_judge.getId() )
-    			.withCivility(_judge.getCivility())
-    			.withName( buildName(_judge.getLastName(),_judge.getFirstName()) )
-    			.withAddress( _judge.getAddress())
-    			.withZipCode( _judge.getZipCode() )
-    			.withCity( _judge.getCity() )
-    			.withEmail( _judge.getEmail() )
-    			.withCountry( _judge.getCountry() )
+    		result.withId(_judge.get().getId() )
+    			.withCivility(_judge.get().getCivility())
+    			.withName( buildName(_judge.get().getLastName(),_judge.get().getFirstName()) )
+    			.withAddress( _judge.get().getAddress())
+    			.withZipCode( _judge.get().getZipCode() )
+    			.withCity( _judge.get().getCity() )
+    			.withEmail( _judge.get().getEmail() )
+    			.withCountry( _judge.get().getCountry() )
     		;
 	    		
         }
@@ -235,7 +229,7 @@ public class JudgeService {
                      @HystrixProperty(name="metrics.rollingStats.timeInMilliseconds", value="15000"),
                      @HystrixProperty(name="metrics.rollingStats.numBuckets", value="5")}
     )
-    public ResponseObjectList<BreedObject> getBreedsByIdJudge(int id, String show) {
+    public ResponseObjectList<BreedObject> getBreedsByIdJudge(int id, ShowEnum show) {
 
         Span newSpan = tracer.createSpan("getBreedsByIdJudge");
         logger.debug("In the judgeService.getBreedsByIdJudge() call, trace id: {}", tracer.getCurrentSpan().traceIdString());
@@ -245,7 +239,7 @@ public class JudgeService {
     	
     	try {
         
-    		if ("ESIN".equals(show))
+    		if (show.equals(ShowEnum.ESIN))
     			isInternational = true;
     		
     		List<JudgeBreed> list = new ArrayList<JudgeBreed>(); 
@@ -275,7 +269,7 @@ public class JudgeService {
 
 
     @SuppressWarnings("unused")
-	private ResponseObjectList<BreedObject> buildFallbackBreedsList(int id, String show){
+	private ResponseObjectList<BreedObject> buildFallbackBreedsList(int id, ShowEnum show){
     	
     	List<BreedObject> list = new ArrayList<BreedObject>(); 
     	list.add(new BreedObject()

@@ -1,5 +1,6 @@
 package com.scc.judge.model;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 import javax.persistence.Column;
@@ -9,8 +10,10 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "ws_juge_expos")
-public class Judge{
+public class Judge implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	@Id
 	@Column(name = "id", nullable = false)
 	private int id;
@@ -47,7 +50,7 @@ public class Judge{
 	
 	@Column(name = "date_maj")
 	private Timestamp timestamp;
-
+	
 	public int getId() { return id; }
 	public void setId(int id) { this.id = id; }
 
@@ -96,6 +99,5 @@ public class Judge{
 	public Judge withEmail(String email){ this.setEmail(email); return this; }
 	public Judge withIsInternational(String isInternational){ this.setIsInternational( isInternational ); return this; }
 	public Judge withTimestamp(Timestamp timestamp){ this.setTimestamp(timestamp); return this; }
-
 
 }

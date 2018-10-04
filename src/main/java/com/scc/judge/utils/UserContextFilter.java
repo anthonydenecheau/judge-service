@@ -3,9 +3,15 @@ package com.scc.judge.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.scc.judge.config.AuthenticateConfig;
+import com.scc.judge.exceptions.ApiError;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -17,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -49,7 +56,12 @@ public class UserContextFilter implements Filter {
 	        } else {
 				if (servletResponse instanceof HttpServletResponse) {
 					HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
+
 					httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+					httpServletResponse.setContentType("application/json");
+
+					httpServletResponse.getWriter().write(convertObjectToJson(new ApiError(HttpStatus.UNAUTHORIZED, "Authentification key is required")));
+					
 					logger.error("Erreur d'authentification, clef fournie: {}", authCredentials);
 				}
 			}
@@ -101,4 +113,20 @@ public class UserContextFilter implements Filter {
 		return ok;
 
 	}        
+    
+    public String convertObjectToJson(Object object) throws JsonProcessingException {
+        if (object == null) {
+            return null;
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        // jackson mapper @jsonformat not working
+        mapper.findAndRegisterModules();
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        //DateFormat df = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+        //df.setLenient(false);
+        //mapper.setDateFormat(df);
+
+        return mapper.writeValueAsString(object);
+    }
+    
 }
