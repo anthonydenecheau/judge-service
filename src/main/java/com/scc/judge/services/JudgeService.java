@@ -16,6 +16,7 @@ import com.scc.judge.repository.JudgeRepository;
 import com.scc.judge.template.BreedObject;
 import com.scc.judge.template.JudgeObject;
 import com.scc.judge.template.ResponseObjectList;
+import com.scc.judge.utils.CommissionEnum;
 import com.scc.judge.utils.ShowEnum;
 
 import java.util.ArrayList;
@@ -29,253 +30,268 @@ import org.slf4j.LoggerFactory;
 @Service
 public class JudgeService {
 
-    private static final Logger logger = LoggerFactory.getLogger(JudgeService.class);
+   private static final Logger logger = LoggerFactory.getLogger(JudgeService.class);
 
-    @Autowired
-    private Tracer tracer;
+   @Autowired
+   private Tracer tracer;
 
-    @Autowired
-    private JudgeRepository judgeRepository;
+   @Autowired
+   private JudgeRepository judgeRepository;
 
-    @Autowired
-    private BreedRepository breedRepository;
-    
-    @Autowired
-    ServiceConfig config;
+   @Autowired
+   private BreedRepository breedRepository;
 
-    @HystrixCommand(fallbackMethod = "buildFallbackJudgeList",
-            threadPoolKey = "frenchJudgesThreadPool",
-            threadPoolProperties =
-                    {@HystrixProperty(name = "coreSize",value="30"),
-                     @HystrixProperty(name="maxQueueSize", value="10")},
-            commandProperties={
-                     @HystrixProperty(name="circuitBreaker.requestVolumeThreshold", value="10"),
-                     @HystrixProperty(name="circuitBreaker.errorThresholdPercentage", value="75"),
-                     @HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds", value="7000"),
-                     @HystrixProperty(name="metrics.rollingStats.timeInMilliseconds", value="15000"),
-                     @HystrixProperty(name="metrics.rollingStats.numBuckets", value="5")}
-    )
-    public ResponseObjectList<JudgeObject> getFrenchJudges(ShowEnum show){
+   @Autowired
+   ServiceConfig config;
 
-        Span newSpan = tracer.createSpan("getFrenchJudges");
-        logger.debug("In the judgeService.getFrenchJudges() call, trace id: {}", tracer.getCurrentSpan().traceIdString());
-        try {
-        	
-        	List<Judge> list = new ArrayList<Judge>(); 
-        	if (show.equals(ShowEnum.ESIN))
-        		list = judgeRepository.findByCountryAndIsInternationalOrderByLastNameAscFirstNameAsc("FR","O");
-        	else
-        		list = judgeRepository.findByCountryOrderByLastNameAscFirstNameAsc("FR");
-        		
-        	List<JudgeObject> results = new ArrayList<JudgeObject>();
-	    	results = buildResponseObjectJudge(list);
-	    	
-	    	return new ResponseObjectList<JudgeObject>(results.size(),results);
-	    	
-        }
-	    finally{
-	    	newSpan.tag("peer.service", "postgres");
-	        newSpan.logEvent(org.springframework.cloud.sleuth.Span.CLIENT_RECV);
-	        tracer.close(newSpan);
-	    }
-    }
+   @HystrixCommand(fallbackMethod = "buildFallbackJudgeList", threadPoolKey = "frenchJudgesThreadPool", threadPoolProperties = {
+         @HystrixProperty(name = "coreSize", value = "30"),
+         @HystrixProperty(name = "maxQueueSize", value = "10") }, commandProperties = {
+               @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),
+               @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "75"),
+               @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "7000"),
+               @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "15000"),
+               @HystrixProperty(name = "metrics.rollingStats.numBuckets", value = "5") })
+   public ResponseObjectList<JudgeObject> getFrenchShowJudges(ShowEnum show) {
 
-	private List<JudgeObject> buildResponseObjectJudge(List<Judge> list) {
-		return list.stream()
-			.map(_judge -> new JudgeObject()
-					.withId(_judge.getId() )
-					.withCivility(_judge.getCivility())
-					.withName( buildName(_judge.getLastName(),_judge.getFirstName()) )
-					.withAddress( _judge.getAddress())
-					.withCity( _judge.getCity() )
-					.withZipCode( _judge.getZipCode() )
-					.withEmail( _judge.getEmail() )
-					.withCountry( _judge.getCountry() )
-			)
-			.collect(Collectors.toList())
-		;
-	}
-    
-    private String buildName(String lastName, String firstName) {
-    	
-    	String completeName = "";
-    	
-    	if (!"".equals(lastName) && lastName != null) {
-        	if (!"".equals(firstName) && firstName != null)
-        		completeName = lastName+" "+firstName;
-        	else
-        		completeName = lastName;
-    	}
-    		
-    	return completeName;
-    }
-    
-    @SuppressWarnings("unused")
-	private ResponseObjectList<JudgeObject> buildFallbackJudgeList(){
-    	
-    	List<JudgeObject> list = new ArrayList<JudgeObject>(); 
-    	list.add(new JudgeObject()
-                .withId(0))
-    	;
-        return new ResponseObjectList<JudgeObject>(list.size(),list);
-    }
-    
-    @SuppressWarnings("unused")
-	private ResponseObjectList<JudgeObject> buildFallbackJudgeList(ShowEnum show){
-    	
-    	List<JudgeObject> list = new ArrayList<JudgeObject>(); 
-    	list.add(new JudgeObject()
-                .withId(0))
-    	;
-        return new ResponseObjectList<JudgeObject>(list.size(),list);
-    }
-    
-    @HystrixCommand(fallbackMethod = "buildFallbackJudgeList",
-            threadPoolKey = "internationalJudgesThreadPool",
-            threadPoolProperties =
-                    {@HystrixProperty(name = "coreSize",value="30"),
-                     @HystrixProperty(name="maxQueueSize", value="10")},
-            commandProperties={
-                     @HystrixProperty(name="circuitBreaker.requestVolumeThreshold", value="10"),
-                     @HystrixProperty(name="circuitBreaker.errorThresholdPercentage", value="75"),
-                     @HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds", value="7000"),
-                     @HystrixProperty(name="metrics.rollingStats.timeInMilliseconds", value="15000"),
-                     @HystrixProperty(name="metrics.rollingStats.numBuckets", value="5")}
-    )
-    public ResponseObjectList<JudgeObject> getInternationalJudges() {
-        Span newSpan = tracer.createSpan("getInternationalJudges");
-        logger.debug("In the judgeService.getInternationalJudges() call, trace id: {}", tracer.getCurrentSpan().traceIdString());
-        try {
+      Span newSpan = tracer.createSpan("getFrenchShowJudges");
+      logger.debug("In the judgeService.getFrenchShowJudges() call, trace id: {}",
+            tracer.getCurrentSpan().traceIdString());
+      try {
 
-        	List<Judge> list = new ArrayList<Judge>(); 
-        	list = judgeRepository.findByIsInternationalAndCountryNotOrderByLastNameAscFirstNameAsc("O","FR");
-	    	
-        	List<JudgeObject> results = new ArrayList<JudgeObject>();
-	    	results = buildResponseObjectJudge(list);
+         List<Judge> list = new ArrayList<Judge>();
+         if (show.equals(ShowEnum.ESIN))
+            list = judgeRepository.findByCountryAndNatureJugementAndIsInternationalOrderByLastNameAscFirstNameAsc("FR",
+                  "E", "O");
+         else
+            list = judgeRepository.findByCountryAndNatureJugementOrderByLastNameAscFirstNameAsc("FR", "E");
 
-	    	return new ResponseObjectList<JudgeObject>(results.size(),results);
+         List<JudgeObject> results = new ArrayList<JudgeObject>();
+         results = buildResponseObjectJudge(list);
 
-        }
-	    finally{
-	    	newSpan.tag("peer.service", "postgres");
-	        newSpan.logEvent(org.springframework.cloud.sleuth.Span.CLIENT_RECV);
-	        tracer.close(newSpan);
-	    }
-    }
+         return new ResponseObjectList<JudgeObject>(results.size(), results);
 
-    @HystrixCommand(fallbackMethod = "buildFallbackJudge",
-            threadPoolKey = "judgeByIdThreadPool",
-            threadPoolProperties =
-                    {@HystrixProperty(name = "coreSize",value="30"),
-                     @HystrixProperty(name="maxQueueSize", value="10")},
-            commandProperties={
-                     @HystrixProperty(name="circuitBreaker.requestVolumeThreshold", value="10"),
-                     @HystrixProperty(name="circuitBreaker.errorThresholdPercentage", value="75"),
-                     @HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds", value="7000"),
-                     @HystrixProperty(name="metrics.rollingStats.timeInMilliseconds", value="15000"),
-                     @HystrixProperty(name="metrics.rollingStats.numBuckets", value="5")},
-            ignoreExceptions= { EntityNotFoundException.class}
-    )
-    public JudgeObject getJudgeById(int id) throws EntityNotFoundException {
-        Span newSpan = tracer.createSpan("getJudgeById");
-        logger.debug("In the judgeService.getJudgeById() call, trace id: {}", tracer.getCurrentSpan().traceIdString());
+      } finally {
+         newSpan.tag("peer.service", "postgres");
+         newSpan.logEvent(org.springframework.cloud.sleuth.Span.CLIENT_RECV);
+         tracer.close(newSpan);
+      }
+   }
 
-    	JudgeObject result = new JudgeObject();
+   private List<JudgeObject> buildResponseObjectJudge(List<Judge> list) {
+      return list.stream()
+            .map(_judge -> new JudgeObject()
+                  .withId(_judge.getId())
+                  .withCivility(_judge.getCivility())
+                  .withName(buildName(_judge.getLastName(), _judge.getFirstName())).withAddress(_judge.getAddress())
+                  .withCity(_judge.getCity()).withZipCode(_judge.getZipCode()).withEmail(_judge.getEmail())
+                  .withCountry(_judge.getCountry())
+                  .withNumber(_judge.getNumber()))
+            .collect(Collectors.toList());
+   }
 
-        try {
-        	
-        	Optional<Judge> _judge = judgeRepository.findById(id);
+   private String buildName(String lastName, String firstName) {
 
-        	if (!_judge.isPresent())
-    			throw new EntityNotFoundException(JudgeObject.class, "id", String.valueOf(id));
-        	
-	    	// Construction de la réponse
-    		result.withId(_judge.get().getId() )
-    			.withCivility(_judge.get().getCivility())
-    			.withName( buildName(_judge.get().getLastName(),_judge.get().getFirstName()) )
-    			.withAddress( _judge.get().getAddress())
-    			.withZipCode( _judge.get().getZipCode() )
-    			.withCity( _judge.get().getCity() )
-    			.withEmail( _judge.get().getEmail() )
-    			.withCountry( _judge.get().getCountry() )
-    		;
-	    		
-        }
-	    finally{
-	    	newSpan.tag("peer.service", "postgres");
-	        newSpan.logEvent(org.springframework.cloud.sleuth.Span.CLIENT_RECV);
-	        tracer.close(newSpan);
-	    }
+      String completeName = "";
 
-        return result;
-    }
+      if (!"".equals(lastName) && lastName != null) {
+         if (!"".equals(firstName) && firstName != null)
+            completeName = lastName + " " + firstName;
+         else
+            completeName = lastName;
+      }
 
-    @SuppressWarnings("unused")
-	private JudgeObject buildFallbackJudge(int id){
-    	
-    	return new JudgeObject().withId(0);
+      return completeName;
+   }
 
-    }
-    
-    @HystrixCommand(fallbackMethod = "buildFallbackBreedsList",
-            threadPoolKey = "breedsByIdJudgeThreadPool",
-            threadPoolProperties =
-                    {@HystrixProperty(name = "coreSize",value="30"),
-                     @HystrixProperty(name="maxQueueSize", value="10")},
-            commandProperties={
-                     @HystrixProperty(name="circuitBreaker.requestVolumeThreshold", value="10"),
-                     @HystrixProperty(name="circuitBreaker.errorThresholdPercentage", value="75"),
-                     @HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds", value="7000"),
-                     @HystrixProperty(name="metrics.rollingStats.timeInMilliseconds", value="15000"),
-                     @HystrixProperty(name="metrics.rollingStats.numBuckets", value="5")}
-    )
-    public ResponseObjectList<BreedObject> getBreedsByIdJudge(int id, ShowEnum show) {
+   @SuppressWarnings("unused")
+   private ResponseObjectList<JudgeObject> buildFallbackJudgeList() {
 
-        Span newSpan = tracer.createSpan("getBreedsByIdJudge");
-        logger.debug("In the judgeService.getBreedsByIdJudge() call, trace id: {}", tracer.getCurrentSpan().traceIdString());
-        
-    	List<BreedObject> results = new ArrayList<BreedObject>();
-    	boolean isInternational = false;
-    	
-    	try {
-        
-    		if (show.equals(ShowEnum.ESIN))
-    			isInternational = true;
-    		
-    		List<JudgeBreed> list = new ArrayList<JudgeBreed>(); 
-        	list = breedRepository.findById(id);
+      List<JudgeObject> list = new ArrayList<JudgeObject>();
+      list.add(new JudgeObject().withId(0));
+      return new ResponseObjectList<JudgeObject>(list.size(), list);
+   }
 
-        	for (JudgeBreed _breed : list) {
+   @SuppressWarnings("unused")
+   private ResponseObjectList<JudgeObject> buildFallbackJudgeList(ShowEnum show) {
 
-        		// Un juge est habilité à juger une race s/ un show international
-        		// si il a obtenu la qualification
-        		if (isInternational && (_breed.getDateQualifie()==null))
-        			continue;
-        		
-		    	// Construction de la réponse
-	    		results.add( new BreedObject()
-	    				.withIdRace( _breed.getIdRace() )
-	    		);
-	    	}
-	    	return new ResponseObjectList<BreedObject>(results.size(),results);
-        }
-	    finally{
-	    	newSpan.tag("peer.service", "postgres");
-	        newSpan.logEvent(org.springframework.cloud.sleuth.Span.CLIENT_RECV);
-	        tracer.close(newSpan);
-	    }
+      List<JudgeObject> list = new ArrayList<JudgeObject>();
+      list.add(new JudgeObject().withId(0));
+      return new ResponseObjectList<JudgeObject>(list.size(), list);
+   }
 
-    }
+   @SuppressWarnings("unused")
+   private ResponseObjectList<JudgeObject> buildFallbackJudgeList(CommissionEnum commission) {
 
+      List<JudgeObject> list = new ArrayList<JudgeObject>();
+      list.add(new JudgeObject().withId(0));
+      return new ResponseObjectList<JudgeObject>(list.size(), list);
+   }
 
-    @SuppressWarnings("unused")
-	private ResponseObjectList<BreedObject> buildFallbackBreedsList(int id, ShowEnum show){
-    	
-    	List<BreedObject> list = new ArrayList<BreedObject>(); 
-    	list.add(new BreedObject()
-                .withIdRace(0))
-    	;
-        return new ResponseObjectList<BreedObject>(list.size(),list);
-    }
+   @HystrixCommand(fallbackMethod = "buildFallbackJudgeList", threadPoolKey = "internationalJudgesThreadPool", threadPoolProperties = {
+         @HystrixProperty(name = "coreSize", value = "30"),
+         @HystrixProperty(name = "maxQueueSize", value = "10") }, commandProperties = {
+               @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),
+               @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "75"),
+               @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "7000"),
+               @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "15000"),
+               @HystrixProperty(name = "metrics.rollingStats.numBuckets", value = "5") })
+   public ResponseObjectList<JudgeObject> getInternationalJudges() {
+      Span newSpan = tracer.createSpan("getInternationalJudges");
+      logger.debug("In the judgeService.getInternationalJudges() call, trace id: {}",
+            tracer.getCurrentSpan().traceIdString());
+      try {
 
+         List<Judge> list = new ArrayList<Judge>();
+         list = judgeRepository.findByIsInternationalAndCountryNotOrderByLastNameAscFirstNameAsc("O", "FR");
+
+         List<JudgeObject> results = new ArrayList<JudgeObject>();
+         results = buildResponseObjectJudge(list);
+
+         return new ResponseObjectList<JudgeObject>(results.size(), results);
+
+      } finally {
+         newSpan.tag("peer.service", "postgres");
+         newSpan.logEvent(org.springframework.cloud.sleuth.Span.CLIENT_RECV);
+         tracer.close(newSpan);
+      }
+   }
+
+   @HystrixCommand(fallbackMethod = "buildFallbackJudge", threadPoolKey = "judgeByIdThreadPool", threadPoolProperties = {
+         @HystrixProperty(name = "coreSize", value = "30"),
+         @HystrixProperty(name = "maxQueueSize", value = "10") }, commandProperties = {
+               @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),
+               @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "75"),
+               @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "7000"),
+               @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "15000"),
+               @HystrixProperty(name = "metrics.rollingStats.numBuckets", value = "5") }, ignoreExceptions = {
+                     EntityNotFoundException.class })
+   public JudgeObject getJudgeById(int id) throws EntityNotFoundException {
+      Span newSpan = tracer.createSpan("getJudgeById");
+      logger.debug("In the judgeService.getJudgeById() call, trace id: {}", tracer.getCurrentSpan().traceIdString());
+
+      JudgeObject result = new JudgeObject();
+
+      try {
+
+         Optional<Judge> _judge = judgeRepository.findById(id);
+
+         if (!_judge.isPresent())
+            throw new EntityNotFoundException(JudgeObject.class, "id", String.valueOf(id));
+
+         // Construction de la réponse
+         result.withId(_judge.get().getId()).withCivility(_judge.get().getCivility())
+               .withName(buildName(_judge.get().getLastName(), _judge.get().getFirstName()))
+               .withAddress(_judge.get().getAddress()).withZipCode(_judge.get().getZipCode())
+               .withCity(_judge.get().getCity()).withEmail(_judge.get().getEmail())
+               .withCountry(_judge.get().getCountry())
+               .withNumber(_judge.get().getNumber());
+
+      } finally {
+         newSpan.tag("peer.service", "postgres");
+         newSpan.logEvent(org.springframework.cloud.sleuth.Span.CLIENT_RECV);
+         tracer.close(newSpan);
+      }
+
+      return result;
+   }
+
+   @SuppressWarnings("unused")
+   private JudgeObject buildFallbackJudge(int id) {
+
+      return new JudgeObject().withId(0);
+
+   }
+
+   @HystrixCommand(fallbackMethod = "buildFallbackBreedsList", threadPoolKey = "breedsByIdJudgeThreadPool", threadPoolProperties = {
+         @HystrixProperty(name = "coreSize", value = "30"),
+         @HystrixProperty(name = "maxQueueSize", value = "10") }, commandProperties = {
+               @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),
+               @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "75"),
+               @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "7000"),
+               @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "15000"),
+               @HystrixProperty(name = "metrics.rollingStats.numBuckets", value = "5") })
+   public ResponseObjectList<BreedObject> getBreedsByIdJudge(int id, ShowEnum show) {
+
+      Span newSpan = tracer.createSpan("getBreedsByIdJudge");
+      logger.debug("In the judgeService.getBreedsByIdJudge() call, trace id: {}",
+            tracer.getCurrentSpan().traceIdString());
+
+      List<BreedObject> results = new ArrayList<BreedObject>();
+      boolean isInternational = false;
+
+      try {
+
+         if (show.equals(ShowEnum.ESIN))
+            isInternational = true;
+
+         List<JudgeBreed> list = new ArrayList<JudgeBreed>();
+         list = breedRepository.findById(id);
+
+         for (JudgeBreed _breed : list) {
+
+            // Un juge est habilité à juger une race s/ un show international
+            // si il a obtenu la qualification
+            if (isInternational && (_breed.getDateJuge() == null))
+               continue;
+
+            // Construction de la réponse
+            results.add(new BreedObject().withIdRace(_breed.getIdRace()));
+         }
+         return new ResponseObjectList<BreedObject>(results.size(), results);
+      } finally {
+         newSpan.tag("peer.service", "postgres");
+         newSpan.logEvent(org.springframework.cloud.sleuth.Span.CLIENT_RECV);
+         tracer.close(newSpan);
+      }
+
+   }
+
+   @SuppressWarnings("unused")
+   private ResponseObjectList<BreedObject> buildFallbackBreedsList(int id, ShowEnum show) {
+
+      List<BreedObject> list = new ArrayList<BreedObject>();
+      list.add(new BreedObject().withIdRace(0));
+      return new ResponseObjectList<BreedObject>(list.size(), list);
+   }
+
+   @HystrixCommand(fallbackMethod = "buildFallbackJudgeList", threadPoolKey = "frenchJudgesThreadPool", threadPoolProperties = {
+         @HystrixProperty(name = "coreSize", value = "30"),
+         @HystrixProperty(name = "maxQueueSize", value = "10") }, commandProperties = {
+               @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),
+               @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "75"),
+               @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "7000"),
+               @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "15000"),
+               @HystrixProperty(name = "metrics.rollingStats.numBuckets", value = "5") })
+   public ResponseObjectList<JudgeObject> getFrenchWorkingJudges(CommissionEnum commission) {
+
+      Span newSpan = tracer.createSpan("getFrenchWorkingJudges");
+      logger.debug("In the judgeService.getFrenchWorkingJudges() call {}, trace id: {}",
+            commission.getValue(), tracer.getCurrentSpan().traceIdString());
+
+      List<Judge> list = new ArrayList<Judge>();
+      List<JudgeObject> results = new ArrayList<JudgeObject>();
+
+      try {
+
+         if (commission.equals(CommissionEnum.CUNCA))
+            list = judgeRepository.findByNatureJugementAndCommission("T",commission.getValue());
+         else
+            list = judgeRepository.findByNatureJugement("T");
+
+         results = buildResponseObjectJudge(list);
+
+      } 
+      catch (Exception e) {
+         logger.error("getFrenchWorkingJudges {} {}",commission.getValue(),e.getMessage());
+      }
+      finally {
+         newSpan.tag("peer.service", "postgres");
+         newSpan.logEvent(org.springframework.cloud.sleuth.Span.CLIENT_RECV);
+         tracer.close(newSpan);
+      }
+
+      return new ResponseObjectList<JudgeObject>(results.size(), results);
+
+   }
 }

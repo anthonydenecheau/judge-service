@@ -26,5 +26,5 @@ public class EnumValidationException extends Exception {
         this.enumValue = enumValue;
         this.enumName = enumName;
     }
-    
+ 
 }

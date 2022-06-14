@@ -10,6 +10,6 @@ import com.scc.judge.model.JudgeBreed;
 @Repository
 public interface BreedRepository extends CrudRepository<JudgeBreed, String> {
 	
-    public List<JudgeBreed> findById(int id);
+   public List<JudgeBreed> findById(int id);
 
 }

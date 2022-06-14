@@ -9,6 +9,7 @@ import com.scc.judge.services.JudgeService;
 import com.scc.judge.template.BreedObject;
 import com.scc.judge.template.JudgeObject;
 import com.scc.judge.template.ResponseObjectList;
+import com.scc.judge.utils.CommissionEnum;
 import com.scc.judge.utils.ShowEnum;
 
 import io.swagger.annotations.Api;
@@ -39,7 +40,7 @@ public class JudgeController {
     @RequestMapping(value= "/french/show/{show}" ,method = RequestMethod.GET)
     public ResponseObjectList<JudgeObject> getFrenchJudgesByKindOfShow( 
     		@ApiParam(value = "Show type code", required = true) @PathVariable("show") ShowEnum show) {
-    	return judgeService.getFrenchJudges(show);
+    	return judgeService.getFrenchShowJudges(show);
     }    
 
     @ApiOperation(value = "View French judges information",response = ResponseObjectList.class)
@@ -51,7 +52,7 @@ public class JudgeController {
     })    
     @RequestMapping(value="/french",method = RequestMethod.GET)
     public ResponseObjectList<JudgeObject> getFrenchJudges() {
-        return judgeService.getFrenchJudges(ShowEnum.ALL);
+        return judgeService.getFrenchShowJudges(ShowEnum.ALL);
     }  
     
     @ApiOperation(value = "View International judges (all but french) information",response = ResponseObjectList.class)
@@ -108,4 +109,18 @@ public class JudgeController {
     		, @ApiParam(value = "Show type code", required = true) @PathVariable("show") ShowEnum show) {
         return judgeService.getBreedsByIdJudge(id, show);
     }
+    
+    @ApiOperation(value = "View French judges information by kind of commission",response = ResponseObjectList.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully retrieved french judges"),
+            @ApiResponse(code = 400, message = "You are trying to reach the resource with invalid parameters"),
+            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+            @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+            @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
+    })    
+    @RequestMapping(value= "/french/tests/{commission}" ,method = RequestMethod.GET)
+    public ResponseObjectList<JudgeObject> getFrenchJudgesByKindOfCommission( 
+         @ApiParam(value = "Commission code", required = true) @PathVariable("commission") CommissionEnum commission) {
+      return judgeService.getFrenchWorkingJudges(commission);
+    }        
 }
