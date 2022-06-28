@@ -17,6 +17,7 @@ import com.scc.judge.template.BreedObject;
 import com.scc.judge.template.JudgeObject;
 import com.scc.judge.template.ResponseObjectList;
 import com.scc.judge.utils.CommissionEnum;
+import com.scc.judge.utils.GradeEnum;
 import com.scc.judge.utils.ShowEnum;
 
 import java.util.ArrayList;
@@ -122,6 +123,14 @@ public class JudgeService {
 
    @SuppressWarnings("unused")
    private ResponseObjectList<JudgeObject> buildFallbackJudgeList(CommissionEnum commission) {
+
+      List<JudgeObject> list = new ArrayList<JudgeObject>();
+      list.add(new JudgeObject().withId(0));
+      return new ResponseObjectList<JudgeObject>(list.size(), list);
+   }
+
+   @SuppressWarnings("unused")
+   private ResponseObjectList<JudgeObject> buildFallbackJudgeList(CommissionEnum commission, GradeEnum grade) {
 
       List<JudgeObject> list = new ArrayList<JudgeObject>();
       list.add(new JudgeObject().withId(0));
@@ -294,4 +303,60 @@ public class JudgeService {
       return new ResponseObjectList<JudgeObject>(results.size(), results);
 
    }
+   
+   @HystrixCommand(fallbackMethod = "buildFallbackJudgeList", threadPoolKey = "frenchJudgesThreadPool", threadPoolProperties = {
+         @HystrixProperty(name = "coreSize", value = "30"),
+         @HystrixProperty(name = "maxQueueSize", value = "10") }, commandProperties = {
+               @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),
+               @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "75"),
+               @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "7000"),
+               @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "15000"),
+               @HystrixProperty(name = "metrics.rollingStats.numBuckets", value = "5") })
+   public ResponseObjectList<JudgeObject> getFrenchWorkingJudgesByGrade(CommissionEnum commission, GradeEnum grade) {
+
+      Span newSpan = tracer.createSpan("getFrenchWorkingJudgesByGrade");
+      logger.debug("In the judgeService.getFrenchWorkingJudgesByGrade() call {}, trace id: {}",
+            commission.getValue(), tracer.getCurrentSpan().traceIdString());
+
+      List<Judge> list = new ArrayList<Judge>();
+      List<JudgeObject> results = new ArrayList<JudgeObject>();
+
+      try {
+
+         switch (grade) {
+         case ELEVE:
+            if (commission.equals(CommissionEnum.CUNCA))
+               list = judgeRepository.findByGradeEleveAndNatureJugementAndCommission("T",commission.getValue());
+            else
+               list = judgeRepository.findByGradeEleveAndNatureJugement("T");
+            break;
+         case JUGE:
+            if (commission.equals(CommissionEnum.CUNCA))
+               list = judgeRepository.findByGradeJugeAndNatureJugementAndCommission("T",commission.getValue());
+            else
+               list = judgeRepository.findByGradeJugeAndNatureJugement("T");
+            break;
+         default:
+            if (commission.equals(CommissionEnum.CUNCA))
+               list = judgeRepository.findByNatureJugementAndCommission("T",commission.getValue());
+            else
+               list = judgeRepository.findByNatureJugement("T");
+            break;
+         }
+         
+         results = buildResponseObjectJudge(list);
+
+      } 
+      catch (Exception e) {
+         logger.error("getFrenchWorkingJudgesByGrade {} {}",commission.getValue(),e.getMessage());
+      }
+      finally {
+         newSpan.tag("peer.service", "postgres");
+         newSpan.logEvent(org.springframework.cloud.sleuth.Span.CLIENT_RECV);
+         tracer.close(newSpan);
+      }
+
+      return new ResponseObjectList<JudgeObject>(results.size(), results);
+
+   }   
 }

@@ -27,4 +27,24 @@ public interface JudgeRepository extends CrudRepository<Judge, String> {
 
     public List<Judge> findByNatureJugement(String natureJugement);
 
+    @Query(value = "SELECT j FROM Judge j "
+          + "WHERE j.natureJugement = ?1 "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NOT NULL AND t.dateJuge IS NULL AND t.idCommission = ?2 )")
+    public List<Judge> findByGradeEleveAndNatureJugementAndCommission(String natureJugement, String commission);
+
+    @Query(value = "SELECT j FROM Judge j "
+          + "WHERE j.natureJugement = ?1 "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NOT NULL AND t.dateJuge IS NULL )")
+    public List<Judge> findByGradeEleveAndNatureJugement(String natureJugement);
+
+    @Query(value = "SELECT j FROM Judge j "
+          + "WHERE j.natureJugement = ?1 "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateJuge IS NOT NULL AND t.idCommission = ?2 )")
+    public List<Judge> findByGradeJugeAndNatureJugementAndCommission(String natureJugement, String commission);
+
+    @Query(value = "SELECT j FROM Judge j "
+          + "WHERE j.natureJugement = ?1 "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateJuge IS NOT NULL )")
+    public List<Judge> findByGradeJugeAndNatureJugement(String natureJugement);
+
 }
