@@ -21,35 +21,71 @@ public interface JudgeRepository extends CrudRepository<Judge, String> {
     public List<Judge> findByIdAndNatureJugement(int id, String natureJugement);
 
     @Query(value = "SELECT j FROM Judge j "
-          + "WHERE j.natureJugement = ?1 "
-          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.idCommission = ?2 ) "
-          + "AND j.isInternational = ?3")
-    public List<Judge> findByNatureJugementAndCommissionAndIsInternational(String natureJugement, String commission, String isInternational);
+          + "WHERE j.natureJugement = ?2 "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NOT NULL AND t.dateJuge IS NULL AND t.idCommission = ?3 ) "
+          + "AND j.country = ?1 ")
+    public List<Judge> findByCountryAndNatureJugementAndGradeEleveAndCommission(String country, String natureJugement, String commission);
 
-    public List<Judge> findByNatureJugementAndIsInternational(String natureJugement, String isInternational);
+    @Query(value = "SELECT j FROM Judge j "
+          + "WHERE j.natureJugement = ?2 "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NOT NULL AND t.dateJuge IS NULL ) "
+          + "AND j.country = ?1 ")
+    public List<Judge> findByCountryAndNatureJugementAndGradeEleve(String country, String natureJugement);
+
+    @Query(value = "SELECT j FROM Judge j "
+          + "WHERE j.natureJugement = ?2 "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NULL AND t.dateJuge IS NOT NULL AND t.idCommission = ?3 ) "
+          + "AND j.country = ?1 ")
+    public List<Judge> findByCountryAndNatureJugementAndGradeJugeAndCommission(String country, String natureJugement, String commission);
+
+    @Query(value = "SELECT j FROM Judge j "
+          + "WHERE j.natureJugement = ?2 "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NULL AND t.dateJuge IS NOT NULL ) "
+          + "AND j.country = ?1 ")
+    public List<Judge> findByCountryAndNatureJugementAndGradeJuge(String country, String natureJugement);
+
+    @Query(value = "SELECT j FROM Judge j "
+          + "WHERE j.natureJugement = ?2 "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.idCommission = ?3 ) "
+          + "AND j.country = ?1")
+    public List<Judge> findByCountryAndNatureJugementAndCommission(String country, String natureJugement, String commission);
+
+    public List<Judge> findByCountryAndNatureJugement(String country, String natureJugement);
 
     @Query(value = "SELECT j FROM Judge j "
           + "WHERE j.natureJugement = ?1 "
           + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NOT NULL AND t.dateJuge IS NULL AND t.idCommission = ?2 ) "
-          + "AND j.isInternational = ?3")
-    public List<Judge> findByGradeEleveAndNatureJugementAndCommissionAndIsInternational(String natureJugement, String commission, String isInternational);
+          + "AND j.country != 'FR' ")
+    public List<Judge> findByNatureJugementAndGradeEleveAndIsNotFrenchAndCommission( String natureJugement, String commission);
 
     @Query(value = "SELECT j FROM Judge j "
           + "WHERE j.natureJugement = ?1 "
           + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NOT NULL AND t.dateJuge IS NULL ) "
-          + "AND j.isInternational = ?3")
-    public List<Judge> findByGradeEleveAndNatureJugementAndIsInternational(String natureJugement, String isInternational);
+          + "AND j.country != 'FR' ")
+    public List<Judge> findByNatureJugementAndGradeEleveAndIsNotFrench(String natureJugement);
 
     @Query(value = "SELECT j FROM Judge j "
           + "WHERE j.natureJugement = ?1 "
-          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateJuge IS NOT NULL AND t.idCommission = ?2 ) "
-          + "AND j.isInternational = ?3")
-    public List<Judge> findByGradeJugeAndNatureJugementAndCommissionAndIsInternational(String natureJugement, String commission, String isInternational);
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NULL AND t.dateJuge IS NOT NULL AND t.idCommission = ?2 ) "
+          + "AND j.country != 'FR' ")
+    public List<Judge> findByNatureJugementAndGradeJugeAndIsNotFrenchAndCommission(String natureJugement, String commission);
 
     @Query(value = "SELECT j FROM Judge j "
           + "WHERE j.natureJugement = ?1 "
-          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateJuge IS NOT NULL ) "
-          + "AND j.isInternational = ?3")
-    public List<Judge> findByGradeJugeAndNatureJugementAndIsInternational(String natureJugement, String isInternational);
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NULL AND t.dateJuge IS NOT NULL ) "
+          + "AND j.country != 'FR' ")
+    public List<Judge> findByNatureJugementAndGradeJugeAndIsNotFrench(String natureJugement);
+
+    @Query(value = "SELECT j FROM Judge j "
+          + "WHERE j.natureJugement = ?1 "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.idCommission = ?2 ) "
+          + "AND j.country != 'FR' ")
+    public List<Judge> findByNatureJugementAndIsNotFrenchAndCommission(String natureJugement, String commission);
+
+    @Query(value = "SELECT j FROM Judge j "
+          + "WHERE j.natureJugement = ?1 "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id) "
+          + "AND j.country != 'FR' ")    
+    public List<Judge> findByNatureJugementAndIsNotFrench(String natureJugement);
 
 }

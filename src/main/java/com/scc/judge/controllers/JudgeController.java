@@ -56,7 +56,7 @@ public class JudgeController {
         return judgeService.getFrenchShowJudges(ShowEnum.ALL);
     }  
     
-    @ApiOperation(value = "View International judges (all but french) information",response = ResponseObjectList.class)
+    @ApiOperation(value = "View International judges information",response = ResponseObjectList.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved international judges"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
@@ -82,7 +82,7 @@ public class JudgeController {
     	return judgeService.getJudgeById(id);
     }
 
-    @ApiOperation(value = "View International judge (all but french) information by id",response = JudgeObject.class)
+    @ApiOperation(value = "View International judge information by id",response = JudgeObject.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved international judge"),
             @ApiResponse(code = 400, message = "You are trying to reach the resource with invalid parameters"),
@@ -112,7 +112,7 @@ public class JudgeController {
           return judgeService.getFrenchWorkingJudgesByGrade(commission,grade);
     }   
 
-    @ApiOperation(value = "View international judges (all but french) information about working tests by kind of commission",response = ResponseObjectList.class)
+    @ApiOperation(value = "View foreigner judges (all but french) information about working tests by kind of commission",response = ResponseObjectList.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved international judges"),
             @ApiResponse(code = 400, message = "You are trying to reach the resource with invalid parameters"),
@@ -120,11 +120,11 @@ public class JudgeController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })    
-    @RequestMapping(value= "/international/tests/{commission}" ,method = RequestMethod.GET)
-    public ResponseObjectList<JudgeObject> getInternationalJudgesByKindOfCommission( 
+    @RequestMapping(value= "/foreigner/tests/{commission}" ,method = RequestMethod.GET)
+    public ResponseObjectList<JudgeObject> getForeignerJudgesByKindOfCommission( 
          @ApiParam(value = "Commission code", required = true) @PathVariable("commission") CommissionEnum commission,
          @ApiParam(value = "grade", required = false) @RequestParam(required = false) GradeEnum grade) {
       
-          return judgeService.getInternationalWorkingJudgesByGrade(commission,grade);
+          return judgeService.getForeignerWorkingJudgesByGrade(commission,grade);
     }   
 }
