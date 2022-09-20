@@ -284,9 +284,9 @@ public class JudgeService {
       try {
 
          if (commission.equals(CommissionEnum.CUNCA))
-            list = judgeRepository.findByNatureJugementAndCommission("T",commission.getValue());
+            list = judgeRepository.findByNatureJugementAndCommissionAndIsInternational("T",commission.getValue(),"N");
          else
-            list = judgeRepository.findByNatureJugement("T");
+            list = judgeRepository.findByNatureJugementAndIsInternational("T","N");
 
          results = buildResponseObjectJudge(list);
 
@@ -326,21 +326,21 @@ public class JudgeService {
          switch (grade) {
          case ELEVE:
             if (commission.equals(CommissionEnum.CUNCA))
-               list = judgeRepository.findByGradeEleveAndNatureJugementAndCommission("T",commission.getValue());
+               list = judgeRepository.findByGradeEleveAndNatureJugementAndCommissionAndIsInternational("T",commission.getValue(),"N");
             else
-               list = judgeRepository.findByGradeEleveAndNatureJugement("T");
+               list = judgeRepository.findByGradeEleveAndNatureJugementAndIsInternational("T","N");
             break;
          case JUGE:
             if (commission.equals(CommissionEnum.CUNCA))
-               list = judgeRepository.findByGradeJugeAndNatureJugementAndCommission("T",commission.getValue());
+               list = judgeRepository.findByGradeJugeAndNatureJugementAndCommissionAndIsInternational("T",commission.getValue(),"N");
             else
-               list = judgeRepository.findByGradeJugeAndNatureJugement("T");
+               list = judgeRepository.findByGradeJugeAndNatureJugementAndIsInternational("T","N");
             break;
          default:
             if (commission.equals(CommissionEnum.CUNCA))
-               list = judgeRepository.findByNatureJugementAndCommission("T",commission.getValue());
+               list = judgeRepository.findByNatureJugementAndCommissionAndIsInternational("T",commission.getValue(),"N");
             else
-               list = judgeRepository.findByNatureJugement("T");
+               list = judgeRepository.findByNatureJugementAndIsInternational("T","N");
             break;
          }
          
@@ -359,4 +359,61 @@ public class JudgeService {
       return new ResponseObjectList<JudgeObject>(results.size(), results);
 
    }   
+   
+   @HystrixCommand(fallbackMethod = "buildFallbackJudgeList", threadPoolKey = "internationalJudgesThreadPool", threadPoolProperties = {
+         @HystrixProperty(name = "coreSize", value = "30"),
+         @HystrixProperty(name = "maxQueueSize", value = "10") }, commandProperties = {
+               @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),
+               @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "75"),
+               @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "7000"),
+               @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "15000"),
+               @HystrixProperty(name = "metrics.rollingStats.numBuckets", value = "5") })
+   public ResponseObjectList<JudgeObject> getInternationalWorkingJudgesByGrade(CommissionEnum commission, GradeEnum grade) {
+
+      Span newSpan = tracer.createSpan("getInternationalWorkingJudgesByGrade");
+      logger.debug("In the judgeService.getInternationalWorkingJudgesByGrade() call {}, trace id: {}",
+            commission.getValue(), tracer.getCurrentSpan().traceIdString());
+
+      List<Judge> list = new ArrayList<Judge>();
+      List<JudgeObject> results = new ArrayList<JudgeObject>();
+
+      try {
+
+         switch (grade) {
+         case ELEVE:
+            if (commission.equals(CommissionEnum.CUNCA))
+               list = judgeRepository.findByGradeEleveAndNatureJugementAndCommissionAndIsInternational("T",commission.getValue(),"O");
+            else
+               list = judgeRepository.findByGradeEleveAndNatureJugementAndIsInternational("T","O");
+            break;
+         case JUGE:
+            if (commission.equals(CommissionEnum.CUNCA))
+               list = judgeRepository.findByGradeJugeAndNatureJugementAndCommissionAndIsInternational("T",commission.getValue(),"O");
+            else
+               list = judgeRepository.findByGradeJugeAndNatureJugementAndIsInternational("T","O");
+            break;
+         default:
+            if (commission.equals(CommissionEnum.CUNCA))
+               list = judgeRepository.findByNatureJugementAndCommissionAndIsInternational("T",commission.getValue(),"O");
+            else
+               list = judgeRepository.findByNatureJugementAndIsInternational("T","O");
+            break;
+         }
+         
+         results = buildResponseObjectJudge(list);
+
+      } 
+      catch (Exception e) {
+         logger.error("getInternationalWorkingJudgesByGrade {} {}",commission.getValue(),e.getMessage());
+      }
+      finally {
+         newSpan.tag("peer.service", "postgres");
+         newSpan.logEvent(org.springframework.cloud.sleuth.Span.CLIENT_RECV);
+         tracer.close(newSpan);
+      }
+
+      return new ResponseObjectList<JudgeObject>(results.size(), results);
+
+   }   
+   
 }
