@@ -9,6 +9,8 @@ import com.scc.judge.services.JudgeService;
 import com.scc.judge.template.BreedObject;
 import com.scc.judge.template.JudgeObject;
 import com.scc.judge.template.ResponseObjectList;
+import com.scc.judge.utils.CommissionEnum;
+import com.scc.judge.utils.GradeEnum;
 import com.scc.judge.utils.ShowEnum;
 
 import io.swagger.annotations.Api;
@@ -18,6 +20,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
@@ -39,7 +42,7 @@ public class JudgeController {
     @RequestMapping(value= "/french/show/{show}" ,method = RequestMethod.GET)
     public ResponseObjectList<JudgeObject> getFrenchJudgesByKindOfShow( 
     		@ApiParam(value = "Show type code", required = true) @PathVariable("show") ShowEnum show) {
-    	return judgeService.getFrenchJudges(show);
+    	return judgeService.getFrenchShowJudges(show);
     }    
 
     @ApiOperation(value = "View French judges information",response = ResponseObjectList.class)
@@ -51,10 +54,10 @@ public class JudgeController {
     })    
     @RequestMapping(value="/french",method = RequestMethod.GET)
     public ResponseObjectList<JudgeObject> getFrenchJudges() {
-        return judgeService.getFrenchJudges(ShowEnum.ALL);
+        return judgeService.getFrenchShowJudges(ShowEnum.ALL);
     }  
     
-    @ApiOperation(value = "View International judges (all but french) information",response = ResponseObjectList.class)
+    @ApiOperation(value = "View International judges information",response = ResponseObjectList.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved international judges"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
@@ -80,7 +83,7 @@ public class JudgeController {
     	return judgeService.getJudgeById(id);
     }
 
-    @ApiOperation(value = "View International judge (all but french) information by id",response = JudgeObject.class)
+    @ApiOperation(value = "View International judge information by id",response = JudgeObject.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved international judge"),
             @ApiResponse(code = 400, message = "You are trying to reach the resource with invalid parameters"),
@@ -93,7 +96,7 @@ public class JudgeController {
     		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id) throws EntityNotFoundException {
     	return judgeService.getJudgeById(id);
     }
-
+    
     @ApiOperation(value = "View breeds that the judge is enabled to",response = ResponseObjectList.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved breeds"),
@@ -104,8 +107,41 @@ public class JudgeController {
     })    
     @RequestMapping(value="/{id}/breeds/{show}",method = RequestMethod.GET)
     public ResponseObjectList<BreedObject> getEnabledBreeds( 
-    		@ApiParam(value = "Judge id", required = true) @PathVariable("id") int id
-    		, @ApiParam(value = "Show type code", required = true) @PathVariable("show") ShowEnum show) {
+         @ApiParam(value = "Judge id", required = true) @PathVariable("id") int id
+         , @ApiParam(value = "Show type code", required = true) @PathVariable("show") ShowEnum show) {
+      
         return judgeService.getBreedsByIdJudge(id, show);
     }
+    
+    @ApiOperation(value = "View French judges information about working tests by kind of commission",response = ResponseObjectList.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully retrieved french judges"),
+            @ApiResponse(code = 400, message = "You are trying to reach the resource with invalid parameters"),
+            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+            @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+            @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
+    })    
+    @RequestMapping(value= "/french/tests/{commission}" ,method = RequestMethod.GET)
+    public ResponseObjectList<JudgeObject> getFrenchJudgesByKindOfCommission( 
+         @ApiParam(value = "Commission code", required = true) @PathVariable("commission") CommissionEnum commission,
+         @ApiParam(value = "grade", required = false) @RequestParam(required = false) GradeEnum grade) {
+      
+          return judgeService.getFrenchWorkingJudgesByGrade(commission,grade);
+    }   
+
+    @ApiOperation(value = "View foreigner judges (all but french) information about working tests by kind of commission",response = ResponseObjectList.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully retrieved international judges"),
+            @ApiResponse(code = 400, message = "You are trying to reach the resource with invalid parameters"),
+            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+            @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+            @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
+    })    
+    @RequestMapping(value= "/foreigner/tests/{commission}" ,method = RequestMethod.GET)
+    public ResponseObjectList<JudgeObject> getForeignerJudgesByKindOfCommission( 
+         @ApiParam(value = "Commission code", required = true) @PathVariable("commission") CommissionEnum commission,
+         @ApiParam(value = "grade", required = false) @RequestParam(required = false) GradeEnum grade) {
+      
+          return judgeService.getForeignerWorkingJudgesByGrade(commission,grade);
+    }   
 }

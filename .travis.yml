@@ -2,6 +2,7 @@ language: java
 cache:
   directories:
   - "$HOME/.m2"
+dist: trusty
 jdk:
 - oraclejdk8
 sudo: required
@@ -20,9 +21,16 @@ env:
   - secure: yZJg/Dl3Zu5+qxBH9AkzwKWoxo9HkmlPxc0cEtzQzA0U73ZelCD180akSJDh7Z4dz5hZJ3KZ3rDE7Qi9TTTi5Vnmaas8kD7O5TbiXnWm3zqUO67jzV3BPaPFmuWaHIxgAXQlbO1BM8L62x8YTEjOXxYcuLrB8ogof7C4Mxd3ep8JDVRo20M3QcxVPWGbx1KFjIYaZzLg+gRjWOFQJx+Z7yWXkLHnchTgod6HQM92eJAbLdws1MZyRXr0btuU9T8boFI1x11Fp1FWRodEfRSnKJrMGkGXGZagEHg8HI8853npb55GJpGap+Kf9NVPacICz7k8gSb2zCQkaqDWgQVnamybHjCIjdh/TrMOvcnFBmE9dALD57BBLahfiIJVsdQzjGWiHuMB2DejLnKFyI+/vOG1phI6zXjgDjM6oTgseoVcES5u8dfRCdXxrS12bemUdNkKGqaLSFJKCtReJLwcHIta3Xx5sym71QWhj4uzVwRsYB6BUJiJkbnjcHK89VGoF3jeb5LwlItdgmvj85cNou8aJeH+HTCv0DG2wa42IVqLTxKRWEnbK4SykdBkQDeb03sP/tK2AjAusagDBOoLe6n4DXNobB4DLbL5OM8l1c0N/ANFsisrjlaHgcysdjbpGo5TQBtrkyDbrvWt7nc+NVLe1vfyMDsfZk5O9dhL8KU=
   - secure: qheP2HxmqBy91Q/vG4wryeWTZQ2B8jrRk7zaVsuWYx5ln3KzPKXqaUXuSi1y/EPRR4XhZ1bBS2vsvRSqKqUlGAmkhVZ2wkjdex71g4mkABrUzwqrM08fHKdMkBNRvFuuNfzjo+V3rjviXsJL3oczOb3vrAbPyvUxQ4QTeXteCGSofMRRKkSMoJHNHJSHdB9yl9+81AjCQDBAUHLxsyV50Dl4Ewoeu5bDtccDPU+OuRRY+MjLkadSzqsH5tF3DDEEn22116R0oobkaI/Tj5grlQ9vsKFEwi4gch9meiwh4WSSxFGBe4U6kUAWYK2EFK4hjpcBzkIJZ0UBaovxi9T4js5L5VL8ibf/kxOtjLOzVsdYvQSIUMIovszVUgCKk0IyT6OWa+idETmmIX3WiOtsjZwvoZC7pqqRq8He+xlWiEBSu00m/heEfbCB7coja4JsUAWMfrdGKVaCj8mbH8lUqYVG3qGlbRm4WkkjstubZe9KjEwoaWIEhU9UirzFxBps4Uc+JfhxFWadBDHhhDV3zwIGeBg+BMJyJnmyY26QOd4J4iPTjvF2an+M7jIwW3BXfsKExKL6UuX28pf2I4G8dDvhVWHCk7Lix7hGsXKAvo8bgOD4oYyiUthxT07K4U7R9C1UaXvxiGd5pHlVHoEUo4zc0mQEgmN0+ihkpiLlUE0=
 before_install:
-- gem install travis -v 1.8.5 --no-rdoc --no-ri
+- ruby -v
+- gem install travis -v 1.8.9 --no-document
 - export BUILD_NAME=scc-judge-service-$TRAVIS_BRANCH-$(date -u "+%Y%m%d%H%M%S")-$TRAVIS_BUILD_NUMBER
-script:
-- sh scripts/travis/tag_build.sh
-- sh scripts/travis/build_services.sh
-- sh scripts/travis/deploy_to_docker_hub.sh
+jobs:
+  include:
+  - stage: build and deploy
+    script:
+    - sh scripts/travis/tag_build.sh
+    - sh scripts/travis/build_services.sh
+    - sh scripts/travis/deploy_to_docker_hub.sh
+stages:
+- name: build and deploy
+  if: branch = master
