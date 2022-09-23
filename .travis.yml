@@ -34,4 +34,3 @@ jobs:
 stages:
 - name: build and deploy
   if: branch = master
-
