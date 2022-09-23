@@ -33,4 +33,4 @@ jobs:
     - sh scripts/travis/deploy_to_docker_hub.sh
 stages:
 - name: build and deploy
-  if: branch = master
+#  if: branch = master
