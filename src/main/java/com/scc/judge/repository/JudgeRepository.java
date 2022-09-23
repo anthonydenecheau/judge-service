@@ -34,13 +34,13 @@ public interface JudgeRepository extends CrudRepository<Judge, String> {
 
     @Query(value = "SELECT j FROM Judge j "
           + "WHERE j.natureJugement = ?2 "
-          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NULL AND t.dateJuge IS NOT NULL AND t.idCommission = ?3 ) "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateJuge IS NOT NULL AND t.idCommission = ?3 ) "
           + "AND j.country = ?1 ")
     public List<Judge> findByCountryAndNatureJugementAndGradeJugeAndCommission(String country, String natureJugement, String commission);
 
     @Query(value = "SELECT j FROM Judge j "
           + "WHERE j.natureJugement = ?2 "
-          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NULL AND t.dateJuge IS NOT NULL ) "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateJuge IS NOT NULL ) "
           + "AND j.country = ?1 ")
     public List<Judge> findByCountryAndNatureJugementAndGradeJuge(String country, String natureJugement);
 
@@ -66,13 +66,13 @@ public interface JudgeRepository extends CrudRepository<Judge, String> {
 
     @Query(value = "SELECT j FROM Judge j "
           + "WHERE j.natureJugement = ?1 "
-          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NULL AND t.dateJuge IS NOT NULL AND t.idCommission = ?2 ) "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateJuge IS NOT NULL AND t.idCommission = ?2 ) "
           + "AND j.country != 'FR' ")
     public List<Judge> findByNatureJugementAndGradeJugeAndIsNotFrenchAndCommission(String natureJugement, String commission);
 
     @Query(value = "SELECT j FROM Judge j "
           + "WHERE j.natureJugement = ?1 "
-          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateEleve IS NULL AND t.dateJuge IS NOT NULL ) "
+          + "AND EXISTS ( SELECT t FROM JudgeTest t WHERE t.id = j.id AND t.dateJuge IS NOT NULL ) "
           + "AND j.country != 'FR' ")
     public List<Judge> findByNatureJugementAndGradeJugeAndIsNotFrench(String natureJugement);
 
