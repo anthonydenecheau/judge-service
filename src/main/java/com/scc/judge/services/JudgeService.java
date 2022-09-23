@@ -188,7 +188,6 @@ public class JudgeService {
          if (!_judge.isPresent())
             throw new EntityNotFoundException(JudgeObject.class, "id", String.valueOf(id));
 
-         // Construction de la réponse
          result.withId(_judge.get().getId()).withCivility(_judge.get().getCivility())
                .withName(buildName(_judge.get().getLastName(), _judge.get().getFirstName()))
                .withAddress(_judge.get().getAddress()).withZipCode(_judge.get().getZipCode())
